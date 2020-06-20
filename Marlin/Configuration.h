@@ -83,13 +83,13 @@
 // Choose your own colors:
 // see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
 
-//#define SAPPHIRE_GRAPHICAL_TFT_CUSTOM
+#define SAPPHIRE_GRAPHICAL_TFT_CUSTOM
 #if ENABLED (SAPPHIRE_GRAPHICAL_TFT_CUSTOM)
-#define COLOR_CUSTOM_0 0xFFFF // UI
-#define COLOR_CUSTOM_1 0xFFFF // BACKGROUND
-#define COLOR_CUSTOM_2 0xFFFF // CANCEL 
-#define COLOR_CUSTOM_3 0xFFFF // ARROWS
-#define COLOR_CUSTOM_4 0xFFFF // OK/MENU
+  #define COLOR_CUSTOM_0 0xFFFF // UI
+  #define COLOR_CUSTOM_1 0x0000 // BACKGROUND
+  #define COLOR_CUSTOM_2 0xF8C0 // CANCEL 
+  #define COLOR_CUSTOM_3 0xFFFF // ARROWS
+  #define COLOR_CUSTOM_4 0x07E4 // OK/MENU
 #endif
 
 //===========================================================================
@@ -161,7 +161,7 @@
  */
   #if ENABLED(SAPPHIRE_PRO)
     //Sapphire Pro
-    #define BAUDRATE 115200 
+    #define BAUDRATE 250000 
   #elif ENABLED(SAPPHIRE_PLUS)
     //Sapphire Plus
     #define BAUDRATE 115200    
@@ -472,7 +472,7 @@
  *   998 : Dummy Table that ALWAYS reads 25°C or the temperature defined below.
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  */
-#define TEMP_SENSOR_0 1
+#define TEMP_SENSOR_0 5
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
@@ -547,9 +547,9 @@
 
   #if ENABLED(SAPPHIRE_PRO)
     //Sapphire Pro
-    #define DEFAULT_Kp 14.21
-    #define DEFAULT_Ki 0.88
-    #define DEFAULT_Kd 57.26
+    #define DEFAULT_Kp 19.24
+    #define DEFAULT_Ki 1.83
+    #define DEFAULT_Kd 50.50
   #elif ENABLED(SAPPHIRE_PLUS)
     //Sapphire Plus
     #define DEFAULT_Kp 15.30
@@ -647,7 +647,7 @@
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
 #define PREVENT_COLD_EXTRUSION
-#define EXTRUDE_MINTEMP 170
+#define EXTRUDE_MINTEMP 180
 
 /**
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
@@ -808,13 +808,13 @@
     //Sapphire Pro
     #define X_DRIVER_TYPE  TMC2208_STANDALONE
     #define Y_DRIVER_TYPE  TMC2208_STANDALONE
-    #define Z_DRIVER_TYPE  A4988
+    #define Z_DRIVER_TYPE  TMC2208_STANDALONE
     //#define X2_DRIVER_TYPE A4988
     //#define Y2_DRIVER_TYPE A4988
     //#define Z2_DRIVER_TYPE A4988
     //#define Z3_DRIVER_TYPE A4988
     //#define Z4_DRIVER_TYPE A4988
-    #define E0_DRIVER_TYPE A4988
+    #define E0_DRIVER_TYPE LV8729
     //#define E1_DRIVER_TYPE A4988
     //#define E2_DRIVER_TYPE A4988
     //#define E3_DRIVER_TYPE A4988
@@ -1048,8 +1048,8 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-#define PROBE_MANUALLY
-#define MANUAL_PROBE_START_Z 0.2
+//#define PROBE_MANUALLY
+//#define MANUAL_PROBE_START_Z 0.2
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
@@ -1072,7 +1072,7 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-//#define BLTOUCH
+#define BLTOUCH
 
 /**
  * Touch-MI Probe by hotends.fr
@@ -1144,7 +1144,7 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { 0, -45, -1.1 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1248,12 +1248,12 @@
     // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
     #define INVERT_X_DIR true
     #define INVERT_Y_DIR true
-    #define INVERT_Z_DIR false
+    #define INVERT_Z_DIR true
 
     // @section extruder
 
     // For direct drive extruder v9 set to true, for geared extruder set to false.
-    #define INVERT_E0_DIR false
+    #define INVERT_E0_DIR true
     #define INVERT_E1_DIR false
     #define INVERT_E2_DIR false
     #define INVERT_E3_DIR false
@@ -1310,7 +1310,7 @@
 //#define Z_HOMING_HEIGHT  4      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
 
-//#define Z_AFTER_HOMING  10      // (mm) Height to move to after homing Z
+#define Z_AFTER_HOMING  10      // (mm) Height to move to after homing Z
 
 #if ENABLED(SAPPHIRE_PRO)
     //Sapphire Pro
@@ -1418,7 +1418,7 @@
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
-#define FILAMENT_RUNOUT_SENSOR
+//#define FILAMENT_RUNOUT_SENSOR //TODO: Add filament sensor
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
   #define FIL_RUNOUT_INVERTING false // Set to true to invert the logic of the sensor.
@@ -1480,24 +1480,24 @@
  *   leveling in steps so you can manually adjust the Z height at each grid-point.
  *   With an LCD controller the process is guided step-by-step.
  */
-//#define AUTO_BED_LEVELING_3POINT
+#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
-#define MESH_BED_LEVELING
+//#define MESH_BED_LEVELING
 
 /**
  * Normally G28 leaves leveling disabled on completion. Enable
  * this option to have G28 restore the prior leveling state.
  */
-//#define RESTORE_LEVELING_AFTER_G28
+#define RESTORE_LEVELING_AFTER_G28
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
  * Turn on with the command 'M111 S32'.
  * NOTE: Requires a lot of PROGMEM!
  */
-//#define DEBUG_LEVELING_FEATURE
+#define DEBUG_LEVELING_FEATURE
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL)
   // Gradually reduce leveling correction until a set height is reached,
@@ -1589,7 +1589,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#define LCD_BED_LEVELING
+//#define LCD_BED_LEVELING
 
 #if ENABLED(LCD_BED_LEVELING)
   #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
@@ -1633,7 +1633,7 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing when homing all axes (G28).
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-//#define Z_SAFE_HOMING
+#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing when homing all axes (G28).
@@ -1751,7 +1751,7 @@
 
 // Preheat Constants
 #define PREHEAT_1_LABEL       "PLA"
-#define PREHEAT_1_TEMP_HOTEND 180
+#define PREHEAT_1_TEMP_HOTEND 200
 #define PREHEAT_1_TEMP_BED     60
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
