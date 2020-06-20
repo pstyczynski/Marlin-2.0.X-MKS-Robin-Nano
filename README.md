@@ -22,18 +22,19 @@ To build Marlin 2.0 you'll need [PlatformIO](http://docs.platformio.org/en/lates
   [MKS Robin Nano](https://makerbase.com.cn/en/)|ARM® Cortex-M3 / STM32F103VET6| MKS Robin Nano 1.1 
   [MKS Robin Nano](https://makerbase.com.cn/en/)|ARM® Cortex-M3 / STM32F103VET6| MKS Robin Nano 1.2
   
-### Features of the Configuration of Branch MKS Robin Nano
+### Features of the Preset Configuration of Branch MKS Robin Nano
 
   Features|Active|Value
   --------|------|-----
-  Fast Config Switch Sapphire Pro/Plus|True|Pro
+  Fast Config Switch Sapphire Pro/Plus/Bluer|True|-
   UI Type|-|Classic Marlin
+  TFT Color Selection|True|-
   EEPROM|True|SDCARD EEPROM EMULATION
   G0 Support|True|-
   G2/G3 Arc Support|True|-
-  Classic Jerk|False|-
-  Bézier curve acceleration|True|-
-  Junction Deviation|True|0.05
+  Classic Jerk|True|15
+  Bézier curve acceleration|False|-
+  Junction Deviation|False|0.019
   Mesh Bed Leveling|True|-
   Filament sensor|True|-
   TMC UART|-|Ready
@@ -43,25 +44,77 @@ To build Marlin 2.0 you'll need [PlatformIO](http://docs.platformio.org/en/lates
   Cancel Objects|True|-
 
 
-  Axes|Pro|Plus
-  ----|----|----
-  X|TMC2208 Standalone|TMC2208 Standalone
-  Y|TMC2208 Standalone|TMC2208 Standalone
-  Z|A4988|A4988
-  E|A4988|TMC2208 Standalone
+  Axes|Sapphire Pro|Sapphire Plus|Bluer
+  ----|----|----|----
+  X|TMC2208 Standalone|TMC2208 Standalone|TMC2208 Standalone
+  Y|TMC2208 Standalone|TMC2208 Standalone|TMC2208 Standalone
+  Z|A4988|A4988|A4988
+  E|A4988|TMC2208 Standalone|A4988
 
   Memory consumption|Value
   --------------------|-------------------------------------------
-  RAM:    |56.4% (used 36944 bytes from 65536 bytes)
-  Flash:  |42.6% (used 223380 bytes from 524288 bytes)
+  RAM:    |47.8% (used 36944 bytes from 65536 bytes)
+  Flash:  |43.2% (used 223380 bytes from 524288 bytes)
 
+## UI Preview
+<img align="center" width=650 src="/docs/UI.png" />
   
 ## Submitting Changes
 
 - Please submit your questions and concerns to the [Issue Queue](https://github.com/le3tspeak/Marlin-2.0.X-MKS-Robin-Nano/issues).
 
 
+## Changelog
 
+Version|Changes & Fixes
+-------|-------
+1.0.6
+  -|Add Z2 & E1 HARDWARE_SERIAL
+  -|Add Multi-hotend option
+  -|Add Adv. Preset Custom thermistor
+  -|Add SPI_FLASH
+  -|Save EEPROM on STM32
+  -|FIX UTF char cutoff Y
+  -|TMC Homing stepper phase Z Disable
+  -|Add Adv. Preset Custom Bed Size
+  -|Add PIO MKS Robin Nano -DSS_TIMER=4
+1.0.5b
+  -|TMC SW Serial extension E1 & Z2
+  -|Add Adv. Preset Custom PID
+  -|Add JD_HANDLE_SMALL_SEGMENTS option
+  -|Russian language fix
+1.0.5a
+  -|Add Adv. Preset Custom Axis Steps Per MM
+  -|Extension of BLTouch Preset
+  -|Add Adv. Preset Custom Stepper Motor Drivers
+  -|Add Status Logo TT
+  -|Add Adv. Preset Optical Endstops XY
+1.0.5 
+  -|Major Update & Reworking
+  -| Add Adv. Preset Linear Pressure Control
+  -| Add Adv. Preset Motion Modes
+  -| Add Adv. Preset BLTouch
+  -| Move SD Settings to Pins
+  -| Minor TFT Fixes
+1.0.4
+  -|Touch support for Marlin Menus
+  -|errors moved in Sanity Check
+  -|new TFT scale up
+  -|improve G2/3 movement buffer
+  -|STM32F1: Fix SDIO read errors
+  -|Improve SD Card Read Speed
+  -|Add Cura/Prusa Start/End Codes
+  -|Add Cura/Prusa Profiles
+1.0.3
+  -|Add Bluer Fast Config Switch Preset 
+  -|Error messages separated
+1.0.2
+  -|Add TMC HW Serial
+  -|Add documentation TMC HW Serial
+  -|Add TFT Color Selection
+  -|Fix SD Read Errors
+1.0.1a|Initial commit
+  
 
 ## License
 

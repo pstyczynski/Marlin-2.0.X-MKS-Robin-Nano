@@ -27,8 +27,6 @@
 
 #ifndef __STM32F1__
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin nano supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin nano"
@@ -41,9 +39,12 @@
 //
 // EEPROM
 //
-#if NO_EEPROM_SELECTED
-  //#define FLASH_EEPROM_EMULATION
-  #define SDCARD_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION) && NONE (SDCARD_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE   EEPROM_PAGE_SIZE  // 2KB
 #endif
 
 //
@@ -82,11 +83,13 @@
   // Set Software Serial UART for TMC 2208 / TMC 2209
   //#define SOFTWARE_SERIAL
 
-  #if ENABLED (HARDWARE_SERIAL)
+  #if ENABLED(HARDWARE_SERIAL)
     //#define X_HARDWARE_SERIAL  Serial1
     //#define Y_HARDWARE_SERIAL  Serial1
     //#define Z_HARDWARE_SERIAL  Serial1
+    //#define Z2_HARDWARE_SERIAL Serial1
     //#define E0_HARDWARE_SERIAL Serial1
+    //#define E1_HARDWARE_SERIAL Serial1
 
     //Set *_SERIAL_TX_PIN and *_SERIAL_RX_PIN to match for all drivers on the same PIN to the same Slave Address.
     // | = add jumper
@@ -132,7 +135,9 @@
     //#define X_HARDWARE_SERIAL  Serial1
     //#define Y_HARDWARE_SERIAL  Serial1
     //#define Z_HARDWARE_SERIAL  Serial1
+    //#define Z2_HARDWARE_SERIAL Serial1
     //#define E0_HARDWARE_SERIAL Serial1
+    //#define E1_HARDWARE_SERIAL Serial1
 
     //Set *_SERIAL_TX_PIN and *_SERIAL_RX_PIN to match for all drivers on the same PIN to the same Slave Address.
     #define  X_SLAVE_ADDRESS 0
@@ -158,6 +163,16 @@
     #define E0_SERIAL_TX_PIN                  PE5
     #define E0_SERIAL_RX_PIN                  PE5
 
+    #ifdef E1_DRIVER_TYPE
+      #define E1_SERIAL_TX_PIN                PA9
+      #define E1_SERIAL_RX_PIN                PA9
+    #endif
+
+    #ifdef Z2_DRIVER_TYPE
+      #define E1_SERIAL_TX_PIN                PA9
+      #define E1_SERIAL_RX_PIN                PA9
+    #endif
+
     // Reduce baud rate to improve software serial reliability
     #define TMC_BAUD_RATE 19200
   #endif
@@ -182,10 +197,10 @@
   #define E0_STEP_PIN                         PD6
   #define E0_DIR_PIN                          PD3
 
- #if ENABLED (SOFTWARE_SERIAL)
-  	//#define E1_ENABLE_PIN                     PA3  // USED BY UART X Don't change
-    //#define E1_STEP_PIN                       PA6  // USED BY UART Y Don't change
-    //#define E1_DIR_PIN                        PA1  // USED BY UART Z Don't change
+ #if ENABLED(SOFTWARE_SERIAL)
+  	//#define E1_ENABLE_PIN                   PA3  // USED BY UART X Don't change
+    //#define E1_STEP_PIN                     PA6  // USED BY UART Y Don't change
+    //#define E1_DIR_PIN                      PA1  // USED BY UART Z Don't change
    #else
     #define E1_ENABLE_PIN                     PA3
     #define E1_STEP_PIN                       PA6 
@@ -195,27 +210,38 @@
 //
 // Servos
 //
-#if ENABLED (BLTOUCH)
+#if ENABLED(BLTOUCH)
   #define SERVO0_PIN                          PA8   // Enable BLTOUCH support ROBIN NANO v1.2 ONLY
 #endif
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PC1   // TH1
-#define TEMP_1_PIN                          PC2   // TH2
-#define TEMP_BED_PIN                        PC0   // TB1
+#define TEMP_0_PIN                           PC1   // TH1
+#define TEMP_1_PIN                           PC2   // TH2
+#define TEMP_BED_PIN                         PC0   // TB1
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PC3   // HEATER1
-#define HEATER_1_PIN                        PB0   // HEATER2
-#define HEATER_BED_PIN                      PA0   // HOT BED
+#define HEATER_0_PIN                      PC3
+#define HEATER_BED_PIN                    PA0
 
-#define FAN_PIN                             PB1   // FAN
-//#define E0_AUTO_FAN                         PB0   //E0 AUTO FAN
-//
+#if HOTENDS == 1                                  
+  #ifndef FAN1_PIN
+    #define FAN1_PIN                        PB0
+    #define HEATER_1_PIN                    PC3
+  #endif
+#else
+  #ifndef HEATER_1_PIN
+    #define HEATER_1_PIN                    PB0
+  #endif
+#endif
+
+#define FAN_PIN                           PB1   // FAN
+
+
+
 // Thermocouples
 //
 //#define MAX6675_SS_PIN                    PE5   // TC1 - CS1
@@ -231,12 +257,14 @@
 // SD Card
 //
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
+  #define SDCARD_CONNECTION                 ONBOARD
   #define ONBOARD_SD_CS_PIN                 PC11
 #endif
 
 #define SDIO_SUPPORT
 #define SD_DETECT_PIN                       PD12
+#define SDIO_CLOCK                          18000000       /* 18 MHz (18000000) or 4.5MHz (450000) */ 
+#define SDIO_READ_RETRIES                   16
 
 //
 // LCD / Controller
@@ -246,22 +274,34 @@
 //
 // LED / NEOPixel
 //
-#define LED_PIN                  PB2
+#define LED_PIN                             PB2
 #if ENABLED(NEOPIXEL_LED)
-  #define NEO_PIXEL_1            PA10  // USED WIFI RX PIN
+  #define NEO_PIXEL_1                       PA10  // USED WIFI RX PIN
     #ifdef NEOPIXEL2_PIN
-      #define NEO_PIXEL_2        PA9   // USED WIFI TX PIN
+      #define NEO_PIXEL_2                   PA9   // USED WIFI TX PIN
     #endif
 #endif
       
 //
 // WIFI ESP8266 
 //
-#if ANY (WIFISUPPORT, ESP3D_WIFISUPPORT)
+#if ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #define WIFI_TX_PIN    PA10
   #define WIFI_RX_PIN    PA9
   #define WIFI_IO0_PIN   PC13
   #define WIFI_IO1_PIN   PC7
+#endif
+
+//
+// SPI
+//
+#define ENABLE_SPI2
+#define SPI_FLASH
+#if ENABLED(SPI_FLASH)
+  #define W25QXX_CS_PIN                     PB12
+  #define W25QXX_MOSI_PIN                   PB15
+  #define W25QXX_MISO_PIN                   PB14
+  #define W25QXX_SCK_PIN                    PB13
 #endif
 
 /**
@@ -269,7 +309,7 @@
  * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
  */
-#if ENABLED(FSMC_GRAPHICAL_TFT) || ENABLED(SAPPHIRE_GRAPHICAL_TFT)
+#if ENABLED(FSMC_GRAPHICAL_TFT)
   #define DOGLCD_MOSI -1 // prevent redefine Conditionals_post.h
   #define DOGLCD_SCK -1
   #define FSMC_CS_PIN        PD7    // NE4
@@ -289,40 +329,10 @@
     #define TOUCH_MISO_PIN   PB14 // SPI2_MISO
     #define TOUCH_MOSI_PIN   PB15 // SPI2_MOSI
   #endif
-#endif
 
-
-
-//
-//ERROR Section
-//
-
-#if BOTH(NEOPIXEL_LED, WIFISUPPORT)
-  #error "NEOPIXEL and WIFISUPPORT do not go at the same time please decide for one"
-#endif
-
-#if BOTH(NEOPIXEL_LED, ESP3D_WIFISUPPORT)
-  #error "NEOPIXEL and ESP3D_WIFISUPPORT do not go at the same time please decide for one"
-#endif
-
-#if ENABLED (HARDWARE_SERIAL)
-  #ifdef NEOPIXEL2_PIN
-    #error "Uncomment NEO_PIXEL_2 PIN in "CONFIGURATION.h" if you want to use Hardware Serial with NeoPixel Support"
-  #endif
-#endif
-
-#ifdef E1_DRIVER_TYPE
-  #ifdef Z2_DRIVER_TYPE
-    #error "E1 and Z2 cannot both be active, please select the correct one"
-  #endif
-#endif
-
-#ifdef Z2_DRIVER_TYPE
-  #ifdef E1_DRIVER_TYPE
-   #error "Z2 and E1 cannot both be active, please select the correct one"
-  #endif
-#endif
-
-#if BOTH (HARDWARE_SERIAL, SOFTWARE_SERIAL)
-  #error "Please only select Software Serial or Hardware Serial, both do not work together"
+  #define FSMC_UPSCALE 3
+  #define LCD_FULL_PIXEL_WIDTH  480
+  #define LCD_PIXEL_OFFSET_X    48
+  #define LCD_FULL_PIXEL_HEIGHT 320
+  #define LCD_PIXEL_OFFSET_Y    48
 #endif
