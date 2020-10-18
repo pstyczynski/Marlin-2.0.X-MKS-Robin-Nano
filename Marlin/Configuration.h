@@ -70,14 +70,14 @@
 //===========================================================================
 
 // Probe Settings
-
-
 //#define BL_TOUCH                 // Enable BLTouch Settings
 #if ENABLED(BL_TOUCH)
   //#define LOW_RES                  // 3x3 Grid 
   //#define HI_RES                   // 5x5 Grid
   //#define MAX_RES                  // 7x7 Grid
   //#define BL_TOUCH_HIGH_SPEED      // Only for BLTouch 3.0 and 3.1 Probe Pin does not pull in when moving in XY. Use at your own risk!
+  //#define Z_CLEARANCE_BL        5  // Z Clearance between probe points
+  //#define MULTIPLE_PROBING_BL   2  // A total of 2 does fast/slow probes with a weighted average.  A total of 3 or more adds more slow probes, taking the average.
 #endif
   
 
@@ -98,8 +98,7 @@
 
 // Linear Pressure Control
 //Use at your own risk! It can cause extruder errors...
- 
-//#define LINEAR_PRESSURE_CONTROL
+ //#define LINEAR_PRESSURE_CONTROL
 #if ENABLED(LINEAR_PRESSURE_CONTROL)
   #define LINEAR_PRESSURE_CONTROL_VALUE   0
 #endif
@@ -139,9 +138,14 @@
   //#define INVERT_E1
 #endif
 
+// CoolStep. Currently supported for TMC2130, TMC2209, TMC5130 and TMC5160 only.
+// This mode allows for cooler steppers and energy savings.
+// the driver will switch to coolStep when stepper speed is over COOLSTEP_THRESHOLD mm/s.
+// Settings for CoolStep in CONFIGURATION_ADV.h on Line 2499 
+//#define COOLSTEP
+
 // Custom Axis Steps Per MM
 // If you have calibrated the extruder before, you can enter the steps here, also be specified individually for the other axes.
-
 //#define STEPS_X         0  // Normally no change needed...
 //#define STEPS_Y         0  // Normally no change needed...
 //#define STEPS_Z         0  // Normally no change needed...
@@ -178,6 +182,11 @@
     #define CUSTOM_TEMP_SENSOR_1 5      // 5 : 100K thermistor - ATC Semitec 104GT-2/104NT-4-R025H42G (Used in ParCan, J-Head, and E3D) (4.7k pullup)
     #define CUSTOM_TEMP_SENSOR_BED 1
 #endif
+
+// Reduce installed fans (default to number of defined fan pins).
+// :[1,2,3,4,5,6,7,8]
+//#define FANS 1
+
 
 //===========================================================================
 //============================= Display language selection===================
@@ -1479,7 +1488,7 @@
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
 
 // Feedrate (mm/m) for the "accurate" probe of each point
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
+#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 4)
 
 /**
  * Multiple Probing
@@ -1490,8 +1499,13 @@
  * A total of 2 does fast/slow probes with a weighted average.
  * A total of 3 or more adds more slow probes, taking the average.
  */
-//#define MULTIPLE_PROBING 2
-//#define EXTRA_PROBING    1
+#ifdef MULTIPLE_PROBING_BL
+  #define MULTIPLE_PROBING MULTIPLE_PROBING_BL
+#else
+  //#define MULTIPLE_PROBING 2
+  //#define EXTRA_PROBING    1
+#endif
+
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -1508,8 +1522,16 @@
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
 #define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
-#define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
-#define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
+#ifdef Z_CLEARANCE_BL
+  #define Z_CLEARANCE_BETWEEN_PROBES  Z_CLEARANCE_BL // Z Clearance between probe points
+#else
+  #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
+#endif
+#ifdef MULTIPLE_PROBING_BL
+  #define Z_CLEARANCE_MULTI_PROBE     Z_CLEARANCE_BL // Z Clearance between multiple probes
+#else
+  #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
+#endif
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
 
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
@@ -1608,7 +1630,7 @@
     #endif
     
     #if ENABLED(INVERT_E1)
-      #define INVERT_E0_DIR true
+      #define INVERT_E1_DIR true
     #else
       #define INVERT_E1_DIR false
     #endif
@@ -1654,7 +1676,7 @@
       #define INVERT_E0_DIR false
     #endif
     #if ENABLED(INVERT_E1)
-      #define INVERT_E0_DIR true
+      #define INVERT_E1_DIR true
     #else
       #define INVERT_E1_DIR false
     #endif
@@ -1896,7 +1918,7 @@
 //#define FILAMENT_RUNOUT_SENSOR //TODO: Add filament sensor
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-  #define FIL_RUNOUT_INVERTING false // Set to true to invert the logic of the sensor.
+  #define FIL_RUNOUT_STATE LOW       // Set to true to invert the logic of the sensor.
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
 
